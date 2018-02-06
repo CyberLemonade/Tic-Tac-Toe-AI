@@ -3,22 +3,30 @@ import java.awt.Point;
 
 class TicTacToe {
 
+    // Stores the game board
     class GameState {
+        // total squares filled
         int total = 0;
-
+        
+        // owner of each tile (No owner = 0, user = 1, computer = 2)
         int grid[][] = new int[3][3];
+        
+        // default constructor
         GameState() {}
 
+        // constructor clones an older gameState
         GameState(GameState game) {
             for (int i = 0; i < 3; i++) {grid[i] = game.grid[i].clone();}
             this.total = game.total;
         }
 
+        // set a point
         void set(Point cnt,int owner) {
             grid[cnt.x][cnt.y] = owner;
             total++;
         }
 
+        // display the board
         void board() {
             //System.out.println("∎∎∎∎∎∎∎");
             for (int i = 0; i < 3; i++) {
@@ -35,6 +43,7 @@ class TicTacToe {
             }
         }
 
+        // displays the board in error stream
         void debug() {
             System.err.println("Debug grid:");
             for (int i = 0; i < 3; i++) {
@@ -51,6 +60,7 @@ class TicTacToe {
             }
         }
 
+        // returns winner of the game (-1 if no result, 0 if draw, 1 for user, 2 for computer)
         int getWinner() {
             for (int i = 0; i < 3; i++) {
                 if (grid[i][0] != 0 && grid[i][0] == grid[i][1] && grid[i][1] == grid[i][2]) return grid[i][1];
@@ -68,7 +78,9 @@ class TicTacToe {
     int maxDepth = 9;
     int bestMove;
 
+    // minimax method
     int minimax(GameState state, int player, int depth, int beta, int alpha) {
+        // check for winner before goind further
         int winner = state.getWinner();
         if (winner == 0) {
             //state.debug();
@@ -83,16 +95,16 @@ class TicTacToe {
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 if (state.grid[j][i] != 0) {continue;}
-                GameState newState = new GameState(state);
-                newState.set(new Point(j,i),player);
-                int tempScore = minimax(newState,2-player+1,depth-1,beta,alpha);
-                if (player == 2 && tempScore > best) {
-                    if (tempScore >= beta) {return beta;}
+                GameState newState = new GameState(state); // clone the game state
+                newState.set(new Point(j,i),player); // set at position
+                int tempScore = minimax(newState,2-player+1,depth-1,beta,alpha); // get score by minimax
+                if (player == 2 && tempScore > best) { // for max-node
+                    if (tempScore >= beta) {return beta;} // alpha-beta pruning
                     if (depth == maxDepth) {bestMove = j*10+i;}
                     if (tempScore > alpha) {alpha = tempScore;}
                     best = tempScore;
-                } else if (player == 1 && tempScore < best) {
-                    if (tempScore <= alpha) {return alpha;}
+                } else if (player == 1 && tempScore < best) { // for min node
+                    if (tempScore <= alpha) {return alpha;} // alpha-beta pruning
                     if (tempScore < beta) {beta = tempScore;}
                     best = tempScore;
                 }
